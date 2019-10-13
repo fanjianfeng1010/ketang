@@ -19,12 +19,11 @@ const App: React.FC = () => {
             {/* Main=>router */}
             <main className='container'>
               <Switch>
-                <Route path='/' exact component={Home} />
-                {/* 默认就是课程首页，所以设置根目录和/course都制定为Home组件 */}
                 <Route path='/course' component={Home} />
                 <Route path='/mycourse' component={Mycourse} />
                 <Route path='/person' component={Person} />
-                <Redirect to='/?from=404' />
+                {/* 在其他不存在的地址时,直接跳转到首页 */}
+                <Redirect to='/course' />
               </Switch>
             </main>
             <NavBottom />

@@ -11,7 +11,7 @@ export interface INavTopState {
 }
 export interface NavTopState {}
 
-class NavTop extends React.Component<{}, INavTopState> {
+class NavTop extends React.Component<INavTopProps, INavTopState> {
   constructor(props: {}) {
     super(props)
     this.state = {
