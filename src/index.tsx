@@ -4,6 +4,8 @@ import ReactDOM from 'react-dom'
 /* CSS */
 import './static/css/reset.min.css'
 import './static/css/common.less'
+import './static/css/person.less'
+
 import App from './App'
 
 /* Router */

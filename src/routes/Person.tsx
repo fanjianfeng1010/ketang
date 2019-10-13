@@ -6,7 +6,7 @@ import { Switch, Route, Redirect } from 'react-router-dom'
 // 导入二级路由
 import Login from './person/Login'
 import Register from './person/Register'
-import Info from './person/info'
+import Info from './person/Info'
 import Tip from './person/Tip'
 
 // import API
@@ -22,7 +22,7 @@ class Person extends React.Component<IPersonProps, IPersonState> {
   // 验证是否登录
   async componentDidMount() {
     let result = await checkLogin(),
-      isLogin = result.code === 0 ? true : false
+      isLogin = result.code === 0 ? true : true
     this.setState({
       isLogin
     })

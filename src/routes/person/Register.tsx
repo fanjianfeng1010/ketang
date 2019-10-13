@@ -6,7 +6,7 @@ export interface RegisterState {}
 
 class Register extends React.Component<IRegisterProps> {
   public render() {
-    return <div></div>
+    return <div>注册</div>
   }
 }
 

@@ -20,7 +20,6 @@ class NavTop extends React.Component<INavTopProps, INavTopState> {
   }
 
   public render() {
-    console.log(this.state.in)
     return (
       <header className='header-nav-box'>
         <div className='home-box'>
