@@ -1,20 +1,25 @@
-import { Reducer, AnyAction } from 'redux';
+import { Reducer } from 'redux'
+import { PersonState, personGetInfoAction, personActionType } from '../type'
 
-export interface PersonState {
-
+let init_state: PersonState = {
+  baseInfo: undefined
 }
 
-export interface PersonAction extends AnyAction { }
-
-let init_state: PersonState = {}
-
-const person: Reducer<PersonState | undefined, PersonAction> = (state = init_state, action) => {
-  state = JSON.parse(JSON.stringify(state))
+const person: Reducer<PersonState | undefined, personGetInfoAction> = (
+  state = init_state,
+  action: personGetInfoAction
+) => {
+  let newState = JSON.parse(JSON.stringify(state))
 
   switch (action.type) {
-
+    case personActionType.PERSON_QUERY_BASE:
+      let { code, data } = action.result
+      if (code === 0) {
+        newState.baseInfo = data
+      }
+      break
   }
-  return state
+  return newState
 }
 
 export default person

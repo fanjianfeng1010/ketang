@@ -1,14 +1,16 @@
 import { combineReducers } from 'redux'
-import { course, CourseState, CourseAction } from './course'
-import person, { PersonAction, PersonState } from './person'
+import { course, CourseState } from './course'
+import person from './person'
+import { PersonState } from '../type'
 
-export type AllState = PersonState & CourseState
+export interface AllState {
+  person?: PersonState
+  course?: CourseState
+}
 
-export type AllAction = PersonAction & CourseAction
-
-let rootReducer = combineReducers<AllState, AllAction>({
-  course,
-  person
+let rootReducer = combineReducers<AllState, any>({
+  person,
+  course
 })
 
 export default rootReducer

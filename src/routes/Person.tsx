@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
-import { PersonState } from '../store/reducer/person'
+import { PersonState } from '../store/type'
 import { Switch, Route, Redirect } from 'react-router-dom'
 
 // 导入二级路由

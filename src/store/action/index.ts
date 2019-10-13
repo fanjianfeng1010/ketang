@@ -1,8 +1,9 @@
-import { AnyAction } from 'redux';
-import person from './person';
-import course from './course';
+import person from './person'
+import course from './course'
 
 let action = {
   course,
   person
 }
+
+export default action

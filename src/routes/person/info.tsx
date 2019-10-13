@@ -1,57 +1,40 @@
 import React, { MouseEvent } from 'react'
-import { connect } from 'react-redux'
+/* 第三方模块 */
 import { withRouter, RouteComponentProps } from 'react-router-dom'
+import { connect } from 'react-redux'
 import { Button } from 'antd'
 
-import { exitLogin, queryInfo, personInfo } from '../../api/person'
+/* 业务逻辑模块 */
+import action from '../../store/action'
+import { exitLogin } from '../../api/person'
 
-export interface IInfoProps {}
-export interface InfoState {
-  baseInfo?: personInfo
+export interface InfoState {}
+
+interface propFormDispatch {
+  queryInfo: () => void
 }
 
-export type ApplicationProps = IInfoProps & RouteComponentProps
+export type ApplicationProps = RouteComponentProps & propFormDispatch
 
 class Info extends React.Component<ApplicationProps, InfoState> {
   async componentDidMount() {
-    let result = await queryInfo()
-    console.log(result.code)
-    if (result.code === 0) {
-      this.setState({
-        baseInfo: result.data
-      })
-    } else {
-      this.setState({
-        baseInfo: undefined
-      })
-    }
+    await this.props.queryInfo()
   }
 
-  constructor(props: ApplicationProps) {
-    super(props)
-
-    this.state = {
-      baseInfo: {}
-    }
-  }
   public render() {
-    if (!this.state.baseInfo) {
-      return '没有个人信息'
-    }
-    let { name, email, phone } = this.state.baseInfo
     return (
       <div className='person-base-info'>
         <p>
           <span>用户名</span>
-          <span>{name}</span>
+          <span></span>
         </p>
         <p>
           <span>邮箱</span>
-          <span> {email}</span>
+          <span> </span>
         </p>
         <p>
           <span>电话</span>
-          <span> {phone}</span>
+          <span> </span>
         </p>
         <Button
           type='danger'
@@ -71,4 +54,13 @@ const mapState2Props = (state: InfoState) => {
   return {}
 }
 
-export default withRouter(connect(mapState2Props)(Info))
+const mapDispatchToProps = {
+  queryInfo: action.person.queryBaseInfo
+}
+
+export default withRouter(
+  connect(
+    mapState2Props,
+    mapDispatchToProps
+  )(Info)
+)

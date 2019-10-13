@@ -1,4 +1,5 @@
 import axios from './index'
+import { PersonInfoResponse } from '../store/type'
 
 interface LoginResponse {
   code: number
@@ -8,19 +9,6 @@ interface LoginResponse {
 interface LogoutResponse {
   code: number
   msg: string
-}
-
-export interface personInfo {
-  id?: number
-  name?: string
-  email?: string
-  phone?: string
-}
-
-interface PersonInfoResponse {
-  code?: number
-  mag?: string
-  data?: personInfo
 }
 
 // 验证是否登录
