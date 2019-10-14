@@ -1,25 +1,31 @@
 import { Reducer } from 'redux'
-import { PersonState, personGetInfoAction, personActionType } from '../type'
+import { PersonState, personActionType } from '../type'
 
 let init_state: PersonState = {
-  baseInfo: undefined
+  baseInfo: undefined,
+  isLogin: false
 }
 
-const person: Reducer<PersonState | undefined, personGetInfoAction> = (
+const person: Reducer<PersonState | undefined, any> = (
   state = init_state,
-  action: personGetInfoAction
+  action
 ) => {
   let newState = JSON.parse(JSON.stringify(state))
 
   switch (action.type) {
     case personActionType.PERSON_QUERY_BASE:
+      console.log(action)
       let { code, data } = action.result
       if (code === 0) {
         newState.baseInfo = data
+        return newState
       }
       break
+    case personActionType.PERSON_SET_LOGIN:
+      newState.isLogin = action.login
+      return newState
   }
   return newState
 }
 
-export default person
+export default person as Reducer<PersonState, any>

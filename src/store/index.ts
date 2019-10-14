@@ -1,17 +1,16 @@
 import { createStore, applyMiddleware } from 'redux'
 import reduxThunk, { ThunkMiddleware } from 'redux-thunk'
 import rootReducer from './reducer/index'
-import { PersonState, personGetInfoAction } from './type'
+import { personAction, AllState } from './type'
 
 interface OtherState {}
 
 interface OtherAction {}
 
-type State = PersonState & OtherState
-type Actions = personGetInfoAction & OtherAction
+type Actions = personAction
 
 const store = createStore(
   rootReducer,
-  applyMiddleware(reduxThunk as ThunkMiddleware<State, Actions>)
+  applyMiddleware(reduxThunk as ThunkMiddleware<AllState, Actions>)
 )
 export default store

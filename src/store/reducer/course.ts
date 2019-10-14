@@ -1,22 +1,19 @@
-import { Reducer, AnyAction } from 'redux';
+import { Reducer, AnyAction } from 'redux'
+import { CourseState } from '../type'
 
-export interface CourseState {
+export interface CourseAction extends AnyAction {}
 
-}
+let init_state: CourseState = {}
 
-export interface CourseAction extends AnyAction {
-
-}
-
-let init_state: CourseState = {
-
-}
-
-export const course: Reducer<CourseState | undefined, CourseAction> = (state = init_state, action) => {
+const course: Reducer<CourseState | undefined, CourseAction> = (
+  state = init_state,
+  action
+) => {
   state = JSON.parse(JSON.stringify(state))
 
   switch (action.type) {
-
   }
   return state
 }
+
+export default course as Reducer<CourseState, CourseAction>

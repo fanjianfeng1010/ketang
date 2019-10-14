@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
-import { PersonState } from '../store/type'
-import { Switch, Route, Redirect } from 'react-router-dom'
+import { AllState } from '../store/type'
+import { Switch, Route, Redirect, RouteComponentProps } from 'react-router-dom'
 
 // 导入二级路由
 import Login from './person/Login'
@@ -9,31 +9,15 @@ import Register from './person/Register'
 import Info from './person/Info'
 import Tip from './person/Tip'
 
-// import API
-import { checkLogin } from '../api/person'
-
-export interface IPersonProps {}
-
-export interface IPersonState {
+interface PropFromMap {
   isLogin: boolean
 }
 
-class Person extends React.Component<IPersonProps, IPersonState> {
-  // 验证是否登录
-  async componentDidMount() {
-    let result = await checkLogin(),
-      isLogin = result.code === 0 ? true : true
-    this.setState({
-      isLogin
-    })
-  }
+export type AllPorps = PropFromMap & RouteComponentProps
 
-  constructor(props: IPersonProps) {
-    super(props)
-    this.state = {
-      isLogin: false
-    }
-  }
+class Person extends React.Component<AllPorps, any> {
+  // 验证是否登录
+
   public render() {
     return (
       <section>
@@ -41,8 +25,8 @@ class Person extends React.Component<IPersonProps, IPersonState> {
           <Route
             path='/person/info'
             render={() => {
-              // 验证是否登录的权限校验,权限校验的是同步的
-              if (this.state.isLogin) {
+              // 验证是否登录的权限校验,权限校验的是同步的,所以不能在这里进行一步操作
+              if (this.props.isLogin) {
                 return <Info />
               }
               return <Tip />
@@ -57,8 +41,10 @@ class Person extends React.Component<IPersonProps, IPersonState> {
   }
 }
 
-const mapState2Props = (state: PersonState) => {
-  return {}
+const mapState2Props = (state: AllState) => {
+  return {
+    isLogin: state.person.isLogin
+  }
 }
 
 export default connect(mapState2Props)(Person)

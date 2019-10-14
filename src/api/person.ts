@@ -11,6 +11,11 @@ interface LogoutResponse {
   msg: string
 }
 
+interface PersonLoinResponse {
+  code: number
+  msg: string
+}
+
 // 验证是否登录
 export function checkLogin(): Promise<LoginResponse> {
   return axios.get('/personal/login')
@@ -22,4 +27,8 @@ export function exitLogin(): Promise<LogoutResponse> {
 
 export function queryInfo(): Promise<PersonInfoResponse> {
   return axios.get('/personal/info')
+}
+
+export function login(payload: any): Promise<PersonLoinResponse> {
+  return axios.post('/personal/login', payload)
 }

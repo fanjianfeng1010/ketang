@@ -1,4 +1,9 @@
-import { personActionType, personGetInfoAction, PersonState } from '../type'
+import {
+  personActionType,
+  personAction,
+  PersonState,
+  PersonInfoResponse
+} from '../type'
 import { Action } from 'redux'
 import { ThunkAction } from 'redux-thunk'
 import { queryInfo } from '../../api/person'
@@ -8,21 +13,33 @@ type ThunkResult<R> = ThunkAction<
   R,
   PersonState,
   undefined,
-  Action<personGetInfoAction>
+  Action<personAction>
 >
+const sendmessage = (result: PersonInfoResponse): personAction => {
+  return {
+    type: personActionType.PERSON_QUERY_BASE,
+    result
+  }
+}
 
 const queryBaseInfo = (): ThunkResult<void> => {
   return async (dispatch: Dispatch) => {
     const result = await queryInfo()
-    dispatch({
-      type: personActionType.PERSON_QUERY_BASE,
-      result
-    })
+    console.log(result)
+    dispatch(sendmessage(result))
+  }
+}
+
+function personSetLogin(login: boolean): any {
+  return {
+    type: personActionType.PERSON_SET_LOGIN,
+    login
   }
 }
 
 let person = {
-  queryBaseInfo
+  queryBaseInfo,
+  personSetLogin
 }
 
 export default person
