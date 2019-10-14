@@ -34,8 +34,7 @@ class Login extends React.Component<LoginProps> {
         })
         if (result.code === 0) {
           this.props.personSetLogin(true)
-          // this.props.history.push('/person/info')
-          this.porp.history.go(-1)
+          this.props.history.push('/person/info')
           return
         }
         warning()

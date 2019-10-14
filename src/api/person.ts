@@ -11,7 +11,7 @@ interface LogoutResponse {
   msg: string
 }
 
-interface PersonLoinResponse {
+interface PersonPostResonse {
   code: number
   msg: string
 }
@@ -29,6 +29,10 @@ export function queryInfo(): Promise<PersonInfoResponse> {
   return axios.get('/personal/info')
 }
 
-export function login(payload: any): Promise<PersonLoinResponse> {
+export function login(payload: any): Promise<PersonPostResonse> {
   return axios.post('/personal/login', payload)
+}
+
+export function register(payload: any): Promise<PersonPostResonse> {
+  return axios.post('/personal/register', payload)
 }

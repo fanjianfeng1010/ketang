@@ -25,7 +25,6 @@ const sendmessage = (result: PersonInfoResponse): personAction => {
 const queryBaseInfo = (): ThunkResult<void> => {
   return async (dispatch: Dispatch) => {
     const result = await queryInfo()
-    console.log(result)
     dispatch(sendmessage(result))
   }
 }

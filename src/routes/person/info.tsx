@@ -11,7 +11,7 @@ import { exitLogin } from '../../api/person'
 import { PersonState, AllState } from '../../store/type'
 
 interface propFormDispatch {
-  queryInfo: () => void
+  queryBaseInfo: () => void
   personSetLogin: (islogin: boolean) => void
 }
 
@@ -26,9 +26,9 @@ export type ApplicationProps = RouteComponentProps &
 class Info extends React.Component<ApplicationProps> {
   // 组件加载完毕后,从 redux 中获用户信息,如果没有数据,从服务器中获取数据保存到 redux 中
   async componentDidMount() {
-    let { baseInfo, queryInfo } = this.props
+    let { baseInfo, queryBaseInfo } = this.props
     if (!baseInfo) {
-      queryInfo()
+      queryBaseInfo()
     }
   }
 
@@ -79,7 +79,7 @@ const mapState2Props = (state: AllState) => {
 }
 
 const mapDispatchToProps = {
-  queryInfo: action.person.queryBaseInfo,
+  queryBaseInfo: action.person.queryBaseInfo,
   personSetLogin: action.person.personSetLogin
 }
 
