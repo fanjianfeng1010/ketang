@@ -1,22 +1,39 @@
-import * as React from 'react'
+import React, { MouseEvent } from 'react'
 import { connect } from 'react-redux'
 import { withRouter } from 'react-router-dom'
 import { CSSTransition } from 'react-transition-group'
 import { Icon } from 'antd'
+import action from '../store/action/course'
+import { PayLoadType } from '../store/type'
 
-export interface INavTopProps {}
+declare module 'react' {
+  interface HTMLAttributes<T> extends AriaAttributes, DOMAttributes<T> {
+    // extends React's HTMLAttributes
+    type?: string
+  }
+}
 
 export interface INavTopState {
   in: boolean
 }
-export interface NavTopState {}
+interface PropFromDisaptch {
+  getList: (payload?: PayLoadType) => void
+  getShop: (state: number) => void
+}
 
-class NavTop extends React.Component<INavTopProps, INavTopState> {
-  constructor(props: {}) {
+type NavProps = PropFromDisaptch
+
+class NavTop extends React.Component<NavProps, INavTopState> {
+  constructor(props: NavProps) {
     super(props)
     this.state = {
       in: false
     }
+  }
+
+  async componentDidMount() {
+    await this.props.getShop(0)
+    await this.props.getShop(1)
   }
 
   public render() {
@@ -44,21 +61,43 @@ class NavTop extends React.Component<INavTopProps, INavTopState> {
             timeout={2000}
             classNames='filter-box'
             unmountOnExit>
-            <ul className='filter-box'>
-              <li>全部课程</li>
-              <li>react课程</li>
-              <li>Vue课程</li>
-              <li> 小程序课程</li>
+            <ul className='filter-box' onClick={this.handleClick}>
+              <li type='all'>全部课程</li>
+              <li type='react'>react课程</li>
+              <li type='vue'>Vue课程</li>
+              <li type='xiaochengxu'> 小程序课程</li>
             </ul>
           </CSSTransition>
         </div>
       </header>
     )
   }
+
+  handleClick = (e: MouseEvent) => {
+    console.log('click')
+    let target = e.target as any,
+      tarTag = target.tagName
+    if (tarTag === 'LI') {
+      this.props.getList({
+        page: 1,
+        type: target.getAttribute('type'),
+        flag: 'replace' // => 替换容器中的内容
+      })
+      this.setState({
+        in: false
+      })
+    }
+  }
 }
 
-const mapState2Props = (state: NavTopState) => {
-  return {}
+const mapDispatch = {
+  getList: action.getList,
+  getShop: action.getShopCart
 }
 
-export default withRouter(connect(mapState2Props)(NavTop))
+export default withRouter(
+  connect(
+    null,
+    mapDispatch
+  )(NavTop)
+)

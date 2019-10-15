@@ -1,9 +1,9 @@
-import { queryBanner, queryList } from '../../api/course'
-import {} from '../../api/types'
+import { queryBanner, queryList, queryShortCart } from '../../api/course'
 import {
   CourseState,
   QUERY_BANNER,
   QUERY_LIST,
+  QUERY_SHOPCART,
   courseAction,
   PayLoadType
 } from '../type'
@@ -18,14 +18,12 @@ type ThunkResult<R> = ThunkAction<
 >
 
 const getList = (payload: PayLoadType = {}): ThunkResult<void> => {
-  console.log(payload)
   let { flag = 'push', limit = 10, page = 1, type = 'all' } = payload
-  console.log(payload)
   return async (dispatch: Dispatch) => {
-    const result = await queryList({ limit, page, type })
+    const listResult = await queryList({ limit, page, type })
     dispatch({
       type: QUERY_LIST,
-      result,
+      listResult,
       flag,
       courseType: type
     })
@@ -42,9 +40,21 @@ const getBannerAction = (): ThunkResult<void> => {
   }
 }
 
+const getShopCart = (state: number): ThunkResult<void> => {
+  return async (dispatch: Dispatch) => {
+    const shopResult = await queryShortCart(state)
+    dispatch({
+      type: QUERY_SHOPCART,
+      shopResult,
+      state
+    })
+  }
+}
+
 const course = {
   getBannerAction,
-  getList
+  getList,
+  getShopCart
 }
 
 export default course

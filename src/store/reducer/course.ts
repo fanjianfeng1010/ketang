@@ -1,5 +1,11 @@
 import { Reducer } from 'redux'
-import { CourseState, QUERY_BANNER, QUERY_LIST, courseAction } from '../type'
+import {
+  CourseState,
+  QUERY_BANNER,
+  QUERY_LIST,
+  QUERY_SHOPCART,
+  courseAction
+} from '../type'
 
 let init_state: CourseState = {
   banner: [],
@@ -9,7 +15,11 @@ let init_state: CourseState = {
     page: 1,
     data: []
   },
-  courseType: 'all'
+  courseType: 'all',
+  shopCart: {
+    unpay: [],
+    pay: []
+  }
 }
 
 const course = (state = init_state, action: courseAction) => {
@@ -20,17 +30,26 @@ const course = (state = init_state, action: courseAction) => {
       newState.banner = action.payload.data
       return newState
     case QUERY_LIST:
-      let { result, flag, courseType } = action
+      let { listResult, flag, courseType } = action
       newState.courseType = courseType
-      if (action.result.code === 0) {
-        newState.courseData.total = result.total
-        newState.courseData.limit = result.limit
-        newState.courseData.page = result.page
+      if (action.listResult.code === 0) {
+        newState.courseData.total = listResult.total
+        newState.courseData.limit = listResult.limit
+        newState.courseData.page = listResult.page
         newState.courseData.data =
           flag === 'push'
-            ? newState.courseData.data.concat(result.data)
-            : result.data
+            ? newState.courseData.data.concat(listResult.data)
+            : listResult.data
       }
+      break
+    case QUERY_SHOPCART: {
+      let { shopResult, state } = action
+      if (shopResult.code === 0) {
+        state === 0
+          ? (newState.shopCart.unpay = shopResult.data)
+          : (newState.shopCart.pay = shopResult.data)
+      }
+    }
   }
   return newState
 }

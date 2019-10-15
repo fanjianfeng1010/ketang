@@ -39,10 +39,16 @@ export interface courseInfo {
   data: courseListData[]
 }
 
+export interface shopCart {
+  unpay: courseListData[]
+  pay: courseListData[]
+}
+
 export interface CourseState {
   banner?: courseBannerData[]
   courseData: courseInfo
   courseType: string
+  shopCart: shopCart
 }
 
 export const QUERY_BANNER = 'QUERY_BANNER'
@@ -50,6 +56,9 @@ export type QUERY_BANNER = typeof QUERY_BANNER
 
 export const QUERY_LIST = 'QUERY_LIST'
 export type QUERY_LIST = typeof QUERY_LIST
+
+export const QUERY_SHOPCART = 'QUERY_SHOPCART'
+export type QUERY_SHOPCART = typeof QUERY_SHOPCART
 
 export interface GetBanner extends AnyAction {
   type: QUERY_BANNER
@@ -64,10 +73,16 @@ export interface ListResponse extends ResponseWithData {
 
 export interface GetList extends AnyAction {
   type: QUERY_LIST
-  result: ListResponse
+  listResult: ListResponse
 }
 
-export type courseAction = GetBanner | GetList
+export interface QueryShopCart extends AnyAction {
+  type: QUERY_SHOPCART
+  shopResult: ResponseWithData
+  state: number
+}
+
+export type courseAction = GetBanner | GetList | QueryShopCart
 
 export interface courseBannerData {
   id: number

@@ -6,8 +6,9 @@ import {
   AllState,
   courseBannerData,
   courseListData,
+  courseInfo,
   PayLoadType
-} from '../../store//type'
+} from '../../store/type'
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom'
 
 interface IListProps {
@@ -24,6 +25,7 @@ interface PropsFromMap {
   list?: courseListData[]
   page: number
   courseType: string
+  courseData: courseInfo
 }
 
 type AllProps = PropsFromMap & IListProps & RouteComponentProps
@@ -43,9 +45,7 @@ class List extends Component<AllProps, IListState> {
       await this.props.getList()
     }
   }
-  componentWillUpdate() {
-    console.log('cwu')
-  }
+  componentWillUpdate() {}
 
   componentWillReceiveProps() {
     this.setState({
@@ -87,7 +87,7 @@ class List extends Component<AllProps, IListState> {
                       <Link
                         to={{
                           pathname: '/course/info',
-                          search: `?courseId=${id}`
+                          search: `?courseID=${id}`
                         }}>
                         <h3>{name}</h3>
                         <div className='content'>
@@ -104,12 +104,16 @@ class List extends Component<AllProps, IListState> {
                   )
                 })}
               </ul>
-              <Button
-                type='dashed'
-                loading={this.state.isLoading}
-                onClick={this.handleClick}>
-                加载更多
-              </Button>
+              {this.props.courseData.total <= this.props.courseData.page ? (
+                ''
+              ) : (
+                <Button
+                  type='primary'
+                  onClick={this.handleClick}
+                  loading={this.state.isLoading}>
+                  加载更多
+                </Button>
+              )}
             </div>
           ) : (
             '暂无数据'
@@ -136,24 +140,31 @@ class List extends Component<AllProps, IListState> {
     return text
   }
   handleClick = (): void => {
+    let { getList, page, courseType } = this.props
+
+    // => 防止重复点击
+    if (this.state.isLoading) return
     this.setState({
       isLoading: true
     })
-    let { page } = this.props
-    this.props.getList({
-      page: page + 1
+
+    // => 重新发送新的 dispatch更新数据,type 沿用当前筛选的 type,flag点击加载更多,是向容器追加新获取的信息
+    getList({
+      page: page + 1,
+      type: courseType,
+      flag: 'push'
     })
   }
 }
 
 const mapState2Props = (state: AllState) => {
   if (state !== undefined) {
-    console.log(state.course.courseType)
     return {
       banner: state.course.banner,
       list: state.course.courseData.data,
       page: state.course.courseData.page,
-      courseType: state.course.courseType
+      courseType: state.course.courseType,
+      courseData: state.course.courseData
     }
   }
 }
