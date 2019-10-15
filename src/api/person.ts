@@ -1,38 +1,23 @@
 import axios from './index'
-import { PersonInfoResponse } from '../store/type'
-
-interface LoginResponse {
-  code: number
-  msg?: string
-}
-
-interface LogoutResponse {
-  code: number
-  msg: string
-}
-
-interface PersonPostResonse {
-  code: number
-  msg: string
-}
+import { ResponseWithData, ResponseWithoutData } from './types'
 
 // 验证是否登录
-export function checkLogin(): Promise<LoginResponse> {
+export function checkLogin(): Promise<ResponseWithoutData> {
   return axios.get('/personal/login')
 }
 
-export function exitLogin(): Promise<LogoutResponse> {
+export function exitLogin(): Promise<ResponseWithoutData> {
   return axios.get('/personal/out')
 }
 
-export function queryInfo(): Promise<PersonInfoResponse> {
+export function queryInfo(): Promise<ResponseWithData> {
   return axios.get('/personal/info')
 }
 
-export function login(payload: any): Promise<PersonPostResonse> {
+export function login(payload: any): Promise<ResponseWithoutData> {
   return axios.post('/personal/login', payload)
 }
 
-export function register(payload: any): Promise<PersonPostResonse> {
+export function register(payload: any): Promise<ResponseWithoutData> {
   return axios.post('/personal/register', payload)
 }

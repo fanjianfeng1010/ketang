@@ -1,12 +1,13 @@
 import {
-  personActionType,
+  PERSON_QUERY_BASE,
+  PERSON_SET_LOGIN,
   personAction,
-  PersonState,
-  PersonInfoResponse
+  PersonState
 } from '../type'
 import { Action } from 'redux'
 import { ThunkAction } from 'redux-thunk'
 import { queryInfo } from '../../api/person'
+import { ResponseWithData } from '../../api/types'
 import { Dispatch } from 'redux'
 
 type ThunkResult<R> = ThunkAction<
@@ -15,9 +16,9 @@ type ThunkResult<R> = ThunkAction<
   undefined,
   Action<personAction>
 >
-const sendmessage = (result: PersonInfoResponse): personAction => {
+const sendmessage = (result: ResponseWithData): personAction => {
   return {
-    type: personActionType.PERSON_QUERY_BASE,
+    type: PERSON_QUERY_BASE,
     result
   }
 }
@@ -31,7 +32,7 @@ const queryBaseInfo = (): ThunkResult<void> => {
 
 function personSetLogin(login: boolean): any {
   return {
-    type: personActionType.PERSON_SET_LOGIN,
+    type: PERSON_SET_LOGIN,
     login
   }
 }

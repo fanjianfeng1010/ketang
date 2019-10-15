@@ -1,17 +1,23 @@
 import * as React from 'react'
-import { connect } from 'react-redux'
+import { Switch, Route, RouteComponentProps } from 'react-router-dom'
+import List from './course/List'
+import Info from './course/Info'
 
 export interface IAppProps {}
-export interface HomeState {}
+
+export type HomeProps = IAppProps & RouteComponentProps
 
 class Home extends React.Component<IAppProps> {
   public render() {
-    return <div>首页</div>
+    return (
+      <section className='course-box'>
+        <Switch>
+          <Route path='/course' exact component={List} />
+          <Route path='/course/info' component={Info} />
+        </Switch>
+      </section>
+    )
   }
 }
 
-const mapState2Props = (state: HomeState) => {
-  return {}
-}
-
-export default connect(mapState2Props)(Home)
+export default Home
