@@ -514,6 +514,7 @@
 * typescript 方法重载
 
 - 使用可选参数使得方法重载
+
   - 需求,在`List.tsx` 组件中,组件加载完成后,使用`getList`方法请求数据,此时并不需要传递参数,而是可以不传递参数,使用 `actionCreator`中默认的参数发送请求
   - 遇到的问题
     - `getList: (payload?: PayLoadType) => void`
@@ -529,36 +530,38 @@
       `const getList = (payload: PayLoadType = {})`
 
 - 请求数据时使用 loading 效果
+
   - 在使用按钮向服务器发送请求时,如果此时快速点击按钮,会向服务器发送多个请求,这样的情况需要避免
   - 在 `ant` 中,按钮有默认属性 `loading`,只需要在控制这个属性就可以实现在加载数据中禁用用户点击按钮,就不会发送多次请求
-   - 在`List`组件内部,添加状态 `isloading` 默认设置为`false` 当用户点击按钮时设置为`true`,在`List`组件的生命周期函数 `componentWillReceiveProps`中,重新设置为`false`,即可完成需求
+  - 在`List`组件内部,添加状态 `isloading` 默认设置为`false` 当用户点击按钮时设置为`true`,在`List`组件的生命周期函数 `componentWillReceiveProps`中,重新设置为`false`,即可完成需求
 
 - 根据属性切换查询的内容
+
   - 在头部导航中,存在多个 li 标签,用于切换显示用户所选择的数据类型
-    - `react vue all xiaochengxu` 
+    - `react vue all xiaochengxu`
   - 用户点击不同标签时,向 `redux`发送带有`flag`的请求
 
   - 遇到问题
     - 在为每个 `li` 标签绑定自定义属性`type`时,编译器提示 `li` 上不存在属性
-  解决方案
+      解决方案
     - 在参考网上的回答后,在`NavTop.tsx`组件声明模块,并为全部 HTML 添加自定义属性`type`网上都说这种方法很脏,
-    但在没找到其他解决方案时,先暂时使用.以后找到更好的方案再重新编写代码
+      但在没找到其他解决方案时,先暂时使用.以后找到更好的方案再重新编写代码
     ```typescript
-    // 添加自定义属性 
-      <ul className='filter-box' onClick={this.handleClick}>
-        <li type='all'>全部课程</li>
-        <li type='react'>react课程</li>
-        <li type='vue'>Vue课程</li>
-        <li type='xiaochengxu'> 小程序课程</li>
-      </ul>
-    // 声明 react 模块 
-      declare module 'react' {
-        interface HTMLAttributes<T> extends AriaAttributes, DOMAttributes<T> {
-          // extends React's HTMLAttributes
-          type?: string
-        }
+    // 添加自定义属性
+    ;<ul className='filter-box' onClick={this.handleClick}>
+      <li type='all'>全部课程</li>
+      <li type='react'>react课程</li>
+      <li type='vue'>Vue课程</li>
+      <li type='xiaochengxu'> 小程序课程</li>
+    </ul>
+    // 声明 react 模块
+    declare module 'react' {
+      interface HTMLAttributes<T> extends AriaAttributes, DOMAttributes<T> {
+        // extends React's HTMLAttributes
+        type?: string
       }
-  // 点击事件处理函数
+    }
+    // 点击事件处理函数
     handleClick = (e: MouseEvent) => {
       let target = e.target as any,
         tarTag = target.tagName
@@ -573,41 +576,53 @@
         })
       }
     }
+    ```
+
+  ```
+
   ```
 
 - 购物车实现流程
+
   - 用户点击购买按钮,向服务器发送请求,把商品信息添加到购物车中
     - 目的
       - redux 中所存储的信息会在用户刷新页面后消失,需要在服务器中存储
   - 当服务器返回存储成功后,我们把信息从 redux 中存储一份(最好是从服务器中获取,这样的数据才是最准确的)
+
     - 目的
       - 以后切换到我的购物车页面,没必要总是从服务器获取,从 redux 中获取也可以,提供性能
       - 之所以是从服务器获取信息存储到 redux 中,因为服务器的信息是最准确的,即使页面刷新了,即使某些操作我们忘记向 redux 中存储了,每一次派发都可以获取最新的信息(只要向服务器发送添加购买的请求即可)
 
-  - 流程梳理 
+  - 流程梳理
     1 进入课程详情页 -> 查看 redux shopCart 信息中是否包含该数据
-      - 包含在 unpay 中
-        - 设置 组件的 isInShop 属性 0  -> 表示 已加入购物车但还没支付
-      - 包含在 pay 中
-        - 设置组件的 isInShop 属性 1 -> 表示 已经加入购物车并且支付成功 
-      - 不包含
-        - 设置组件的 isInShop 属性 -1 -> 表示 未加入购物车
+
+    - 包含在 unpay 中
+      - 设置 组件的 isInShop 属性 0 -> 表示 已加入购物车但还没支付
+    - 包含在 pay 中
+      - 设置组件的 isInShop 属性 1 -> 表示 已经加入购物车并且支付成功
+    - 不包含
+      - 设置组件的 isInShop 属性 -1 -> 表示 未加入购物车
 
     2 按钮的显示
-      - isInShop
-        - -1 -> 加入购物车
-            - 事件 -> 向服务器发送添加项目到购物车 -> 同时查询服务器中购物车的数据->存放到 redux pay 中
+
+    - isInShop
+      - -1 -> 加入购物车
+        - 事件 -> 向服务器发送添加项目到购物车 -> 同时查询服务器中购物车的数据->存放到 redux pay 中
           0 -> 从购物车移除
-            - 事件 -> 向服务器发送从购物车中移除项目 -> 同时查询服务器中购物车的数据 -> 存放到 redux unpay 中 
-           1 -> 不显示按钮
+        - 事件 -> 向服务器发送从购物车中移除项目 -> 同时查询服务器中购物车的数据 -> 存放到 redux unpay 中
+          1 -> 不显示按钮
+
   - 实现
+
     - 用户点击进入组件,当组件已经挂载到 react 实例上,根据传入的 CourseID 获取数据,设置组件的状态为服务器返回的数据
+
       - 由于组件时受路由管控的,所以可以从浏览器地址获取组件对应的参数 -> 获取 courseID
       - 根据 `courseID` 从服务器获取当前组件对应的数据,并且挂载到组件的状态上
       - 对比 redux 中购物车所存储的已经在购物车 `已支付` 和 `未支付` 的课程信息,遍历所有课程,对比每一个课程的 `id` 是否和 当前`courseID`相等,以此判定组件是否存在于购物车中,使用`isInShop`存储对应的状态
-       - -1 => 表示没加入购物车, 0 => 表示已经加入购物车但是还没支付, 1 => 表示已经支付成功 
+      - -1 => 表示没加入购物车, 0 => 表示已经加入购物车但是还没支付, 1 => 表示已经支付成功
 
       - 对比完成后,设置组件的状态信息 -> 组件从新渲染
+
       ```typescript
           async componentDidMount() {
             // 根据组件的地址信息的 query,获得对应的 courseID
@@ -667,11 +682,12 @@
       ```
 
     - 当用户强制刷新浏览器页面时,`redux`存储的数据会消失不见,也没有从服务器中获取已经存储的添加进购物车的数据
-      
+
       - 需要重新向服务器发送请求,把之前用户操作添加进购物车的数据重新获取
+
         - 这个功能最好进行操作的地方是在公有组件中,即进入任何一个路由都会加载的页面,在本项目中,比较适合进行操作的组件时 `NavTop` `NavBottom` 在此我选择使用 `NavTop`作为获取数据的组件
-          - 
-        
+          -
+
         ```typescript
              async componentDidMount() {
               await this.props.getShop(0)
