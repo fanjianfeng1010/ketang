@@ -1,7 +1,3 @@
-## 由 react redux typescript 完成的网上选课系统
-
-## 下面是学习笔记
-
 - 为了不让每次更新组件都刷新页面，配置热加载
 
   - yarn add react-hot-loader --dev
@@ -366,3 +362,318 @@
   - 再次总结,上面说得都其实都不对,都是自己想多了
     - 逻辑就是很简单的
       - 注册完成后 -> 使用`login`函数进行登录 -> 向服务器请求成功并响应 -> 重新向服务器获取新用户的个人信息数据并存储到 redux 中 -> 最后设置用户登录状态为`true`
+
+- 分页数据展示
+
+  - 服务器接收参数
+    - limit:要求返回数据信息的个数
+    - page:要求返回数据所在的页数
+    - type:要求返回数据的类型
+  - 实现
+
+    - 数据展示
+
+      - 向服务器发送数据,根据传递的参数获取指定的数据,存储在 redux 中
+      - 组件根据用户提供的参数,向 redux 中获取数据并展示
+
+        - 分页
+          - 向服务器发送请求,把请求后得到的数据追加到 `redux`容器中,组件更新并展示
+        - 筛选
+          - 用户传入类型的参数,redux 容器筛选指定的参数替换原有的数据
+
+    - `api.ts`
+
+      - 发送给服务器的请求参数只使用服务器必须的参数
+
+      ```typescript
+      interface payloadType {
+        limit: number
+        page: number
+        type: string
+      }
+
+      interface courseListResponse extends ResponseWithData {
+        total: number
+        limit: number
+        page: number
+      }
+      export const queryList = (
+        payload: payloadType
+      ): Promise<courseListResponse> => {
+        return axios.get('/course/list', {
+          params: payload
+        })
+      }
+      ```
+
+    - `actionCreator.ts`
+      - 对用户传入的`payload`参数进行处理
+        - 部分`api`需求的参数分配给 `api`提供的方法
+          - `type`:请求指定的数据类型,默认`all`
+          - `limit`:每次请求数据的个数,默认 10
+          - `page`:请求指定页数的数据,默认 1 -> 后续通过用户的操作进行增量,以此达到请求不同数据的目的
+        - 其余关于如何展示数据的参数通过`dispatch`派发给`reducer`
+          - `courseType`:课程的类型 -> `all`,`react`,`vue`,`小程序`
+          - `flag`: 对容器中`courseData`数据进行的操作类型,默认`push`
+          - `result`: 记录类服务器返回的数据
+          - `page`:当前数据所在的页数
+          - `code`:标识请求成功或者失败 1->失败 0->成功
+          - `msg`:请求成功或是失败的提示信息
+          - `total`:请求数据在服务器中的总页数
+          - `limit`:每次请求数据的最大个数
+          - `data`:请求成功后返回的数据信息
+
+    ```typescript
+    export interface PayLoadType {
+      limit?: number
+      page?: number
+      flag?: string
+      courseType?: string
+      type?: string
+    }
+
+    type ThunkResult<R> = ThunkAction<
+      R,
+      CourseState,
+      undefined,
+      Action<courseAction>
+    >
+
+    const getList = (payload: PayLoadType): ThunkResult<void> => {
+      let { flag = 'push', limit = 10, page = 1, type = 'all' } = payload
+      return async (dispatch: Dispatch) => {
+        const result = await queryList({ limit, page, type })
+        dispatch({
+          type: QUERY_LIST,
+          result,
+          flag,
+          courseType: type
+        })
+      }
+    }
+    ```
+
+    - `reducer.ts`
+      - 对传递进来的数据进行处理
+        - 对于不同的参数,对`redux`容器中的数据进行不同的处理
+        -
+
+    ```typescript
+        case QUERY_LIST:
+          let { result, flag, courseType } = action
+          newState.courseType = courseType
+        if (action.result.code === 0) {
+          newState.courseData.total = result.total
+          newState.courseData.limit = result.limit
+          newState.courseData.page = result.page
+          newState.courseData.data =
+            flag === 'push'
+              ? newState.courseData.data.concat(result.data)
+              : result.data
+        }
+    ```
+
+- 正确的写 actionType 的方式
+
+  - 在 `type.ts`
+
+    - 定义行为标识 `actionTypes`,使用字面量常量,不要使用 `enum`
+    - 定义每个 `Action`的形状
+    - 使用联合类型定义所有 `Action`的形状
+
+    ```typescript
+    // 定义行为标识 `actionTypes`,使用字面量常量
+    export const QUERY_LIST = QUERY_LIST
+    export type QUERY_LIST = typeof QUERY_LIST
+
+    // 定义每个 `Action`的形状
+    export interface GetList extends AnyAction {
+      type: QUERY_LIST
+      payload: ListResponse
+    }
+
+    export interface GetBanner extends AnyAction {
+      type: QUERY_BANNER
+      payload: ResponseWithData
+    }
+
+    export type CourseAction = GetList | GetBanner
+    ```
+
+  - 在 `reducer.ts`
+    - 定义初始化`state`数据
+    - 定义`reducer`函数
+      - 对函数的每个函数都标明类型或赋初始值,这样能告诉编译器所使用到的数据类型,同时也能让编辑器获得智能提示,获得数据具体的类型
+        - `state = init_state`
+        - `action:courseAction`
+      - 由于使用了 `JSON`提供的方法简易的深拷贝`state`, 需要使用类型断言让编译器知道`newState`的类型
+        `let newState = JSON.parse(JSON.stringify(state)) as CourseState`
+    - 处理好业务逻辑后,默认导出`courseReducer`函数
+      `export default course as Reducer<CourseState>`
+
+* typescript 方法重载
+
+- 使用可选参数使得方法重载
+  - 需求,在`List.tsx` 组件中,组件加载完成后,使用`getList`方法请求数据,此时并不需要传递参数,而是可以不传递参数,使用 `actionCreator`中默认的参数发送请求
+  - 遇到的问题
+    - `getList: (payload?: PayLoadType) => void`
+      - 使用了可选参数后,编译器报错,提示 `类型 PayLoadType |undefined`中不存在属性 `xxx`
+    - 原因
+      当配置类可选参数后,传递给方法的参数有可能为 undefined,而在 `actionCreator`中,`let {flag = 'push',limit = 10, page = 1,type = 'all'} = payload`,这里使用了 payload 解构赋值,undefined 中并不存在以上属性,所以会报错
+    - 解决
+      <s>
+      - 因为我们当用户没传递参数进来时,已经为里面的参数赋予了默认值,此时可以使用 typescript 的类型断言,把`payload`的类型显式指定给编译器,这样变异就能通过了
+      - `let {flag = 'push',limit = 10, page = 1,type = 'all'} = payload as PayLoadType`
+        </s>
+    - 应该直接在函数定义时使用默认参数并指定类型,赋默认值
+      `const getList = (payload: PayLoadType = {})`
+
+- 请求数据时使用 loading 效果
+  - 在使用按钮向服务器发送请求时,如果此时快速点击按钮,会向服务器发送多个请求,这样的情况需要避免
+  - 在 `ant` 中,按钮有默认属性 `loading`,只需要在控制这个属性就可以实现在加载数据中禁用用户点击按钮,就不会发送多次请求
+   - 在`List`组件内部,添加状态 `isloading` 默认设置为`false` 当用户点击按钮时设置为`true`,在`List`组件的生命周期函数 `componentWillReceiveProps`中,重新设置为`false`,即可完成需求
+
+- 根据属性切换查询的内容
+  - 在头部导航中,存在多个 li 标签,用于切换显示用户所选择的数据类型
+    - `react vue all xiaochengxu` 
+  - 用户点击不同标签时,向 `redux`发送带有`flag`的请求
+
+  - 遇到问题
+    - 在为每个 `li` 标签绑定自定义属性`type`时,编译器提示 `li` 上不存在属性
+  解决方案
+    - 在参考网上的回答后,在`NavTop.tsx`组件声明模块,并为全部 HTML 添加自定义属性`type`网上都说这种方法很脏,
+    但在没找到其他解决方案时,先暂时使用.以后找到更好的方案再重新编写代码
+    ```typescript
+    // 添加自定义属性 
+      <ul className='filter-box' onClick={this.handleClick}>
+        <li type='all'>全部课程</li>
+        <li type='react'>react课程</li>
+        <li type='vue'>Vue课程</li>
+        <li type='xiaochengxu'> 小程序课程</li>
+      </ul>
+    // 声明 react 模块 
+      declare module 'react' {
+        interface HTMLAttributes<T> extends AriaAttributes, DOMAttributes<T> {
+          // extends React's HTMLAttributes
+          type?: string
+        }
+      }
+  // 点击事件处理函数
+    handleClick = (e: MouseEvent) => {
+      let target = e.target as any,
+        tarTag = target.tagName
+      if (tarTag === 'LI') {
+        this.props.getList({
+          page: 1,
+          type: target.getAttribute('type'),
+          flag: 'replace' // => 替换容器中的内容
+        })
+        this.setState({
+          in: false
+        })
+      }
+    }
+  ```
+
+- 购物车实现流程
+  - 用户点击购买按钮,向服务器发送请求,把商品信息添加到购物车中
+    - 目的
+      - redux 中所存储的信息会在用户刷新页面后消失,需要在服务器中存储
+  - 当服务器返回存储成功后,我们把信息从 redux 中存储一份(最好是从服务器中获取,这样的数据才是最准确的)
+    - 目的
+      - 以后切换到我的购物车页面,没必要总是从服务器获取,从 redux 中获取也可以,提供性能
+      - 之所以是从服务器获取信息存储到 redux 中,因为服务器的信息是最准确的,即使页面刷新了,即使某些操作我们忘记向 redux 中存储了,每一次派发都可以获取最新的信息(只要向服务器发送添加购买的请求即可)
+
+  - 流程梳理 
+    1 进入课程详情页 -> 查看 redux shopCart 信息中是否包含该数据
+      - 包含在 unpay 中
+        - 设置 组件的 isInShop 属性 0  -> 表示 已加入购物车但还没支付
+      - 包含在 pay 中
+        - 设置组件的 isInShop 属性 1 -> 表示 已经加入购物车并且支付成功 
+      - 不包含
+        - 设置组件的 isInShop 属性 -1 -> 表示 未加入购物车
+
+    2 按钮的显示
+      - isInShop
+        - -1 -> 加入购物车
+            - 事件 -> 向服务器发送添加项目到购物车 -> 同时查询服务器中购物车的数据->存放到 redux pay 中
+          0 -> 从购物车移除
+            - 事件 -> 向服务器发送从购物车中移除项目 -> 同时查询服务器中购物车的数据 -> 存放到 redux unpay 中 
+           1 -> 不显示按钮
+  - 实现
+    - 用户点击进入组件,当组件已经挂载到 react 实例上,根据传入的 CourseID 获取数据,设置组件的状态为服务器返回的数据
+      - 由于组件时受路由管控的,所以可以从浏览器地址获取组件对应的参数 -> 获取 courseID
+      - 根据 `courseID` 从服务器获取当前组件对应的数据,并且挂载到组件的状态上
+      - 对比 redux 中购物车所存储的已经在购物车 `已支付` 和 `未支付` 的课程信息,遍历所有课程,对比每一个课程的 `id` 是否和 当前`courseID`相等,以此判定组件是否存在于购物车中,使用`isInShop`存储对应的状态
+       - -1 => 表示没加入购物车, 0 => 表示已经加入购物车但是还没支付, 1 => 表示已经支付成功 
+
+      - 对比完成后,设置组件的状态信息 -> 组件从新渲染
+      ```typescript
+          async componentDidMount() {
+            // 根据组件的地址信息的 query,获得对应的 courseID
+            let { search } = this.props.location
+            let { courseID = 0 } = Qs.parse(search.substr(1)) || {}
+            courseID = parseFloat(courseID)
+            // 把 courseID 挂载到组件上,方便以后进行操作
+            this.courseID = courseID
+            // 根据courseID 获取组件数据
+            let result = await queryCourseInfo(courseID)
+            if (result.code === 0) {
+              let data = result.data
+              // 请求成功后,校验当前数据是否存在于 redux 中
+              let { pay, unpay } = this.props.shopCart,
+                isInShop = -1
+
+              unpay.find(item => (item.id === courseID ? (isInShop = 0) : null))
+              pay.find(item => (item.id === courseID ? (isInShop = 1) : null))
+
+              // 校验后,把数据挂载到组件的状态上
+              this.setState({
+                data,
+                isInShop
+              })
+            }
+          }
+      ```
+
+
+    - 当用户点击组件按钮时,向服务器发送向购物车数据添加或删除操作,并改变组件的状态,以及重新向服务器获取最新的购物车数据
+      ```typescript
+          handleBuy = async () => {
+            // 处理加入购物车
+            if (this.state.isInShop === -1) {
+              // 当前组件还没加入购物车 => 点击按钮,向服务器发送数据,添加数据近服务器中,并把数据保存在 redux 中
+              let result = await addToShopCart(this.courseID)
+              if (result.code === 0) {
+                // 添加成功,服务器中的购物车数据已经 存入了当前数据,此时需要把当前数据存储到 redux 的 unpay 数据中
+                this.props.getShopCart(0)
+                // 通知组件状态更新,重新渲染
+                this.setState({ isInShop: 0 })
+              }
+            }
+            // 当组件的 isInshop === 0 的时候,说明组件已经加入购物车,点击事件发生后,需要把组件从购物车移除
+            // 并且 redux 中的 unpay 数据需要进行更新
+            else if (this.state.isInShop === 0) {
+              let result = await removeFormShopCart(this.courseID)
+              if (result.code === 0) {
+                this.props.getShopCart(0) // 这里就是派发 action
+                // 更新组件按钮的状态
+                this.setState({
+                  isInShop: -1
+                })
+              }
+            }
+          }
+      ```
+
+    - 当用户强制刷新浏览器页面时,`redux`存储的数据会消失不见,也没有从服务器中获取已经存储的添加进购物车的数据
+      - 需要重新向服务器发送请求,把之前用户操作添加进购物车的数据重新获取
+        - 这个功能最好进行操作的地方是在公有组件中,即进入任何一个路由都会加载的页面,在本项目中,比较适合进行操作的组件时 `NavTop` `NavBottom` 在此我选择使用 `NavTop`作为获取数据的组件
+          - 
+        
+        ```typescript
+             async componentDidMount() {
+              await this.props.getShop(0)
+              await this.props.getShop(1)
+            }
+        ```
