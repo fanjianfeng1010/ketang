@@ -49,6 +49,7 @@ export interface CourseState {
   courseData: courseInfo
   courseType: string
   shopCart: shopCart
+  selectAll: boolean
 }
 
 export const QUERY_BANNER = 'QUERY_BANNER'
@@ -59,6 +60,9 @@ export type QUERY_LIST = typeof QUERY_LIST
 
 export const QUERY_SHOPCART = 'QUERY_SHOPCART'
 export type QUERY_SHOPCART = typeof QUERY_SHOPCART
+
+export const HANDLE_SELECT = 'HANDLE_SELECT'
+export type HANDLE_SELECT = typeof HANDLE_SELECT
 
 export interface GetBanner extends AnyAction {
   type: QUERY_BANNER
@@ -82,7 +86,13 @@ export interface QueryShopCart extends AnyAction {
   state: number
 }
 
-export type courseAction = GetBanner | GetList | QueryShopCart
+export type Tmode = string | number
+export interface HandleSelect extends AnyAction {
+  type: HANDLE_SELECT
+  mode: Tmode
+}
+
+export type courseAction = GetBanner | GetList | QueryShopCart | HandleSelect
 
 export interface courseBannerData {
   id: number
@@ -106,6 +116,7 @@ export interface courseListData {
   dec: string
   price: number
   type: string
+  check: boolean
 }
 
 export interface PayLoadType {

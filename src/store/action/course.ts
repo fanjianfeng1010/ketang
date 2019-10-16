@@ -4,18 +4,15 @@ import {
   QUERY_BANNER,
   QUERY_LIST,
   QUERY_SHOPCART,
+  HANDLE_SELECT,
   courseAction,
-  PayLoadType
+  PayLoadType,
+  Tmode
 } from '../type'
 import { Dispatch, Action } from 'redux'
 import { ThunkAction } from 'redux-thunk'
 
-type ThunkResult<R> = ThunkAction<
-  R,
-  CourseState,
-  undefined,
-  Action<courseAction>
->
+type ThunkResult<R> = ThunkAction<R, CourseState, undefined, Action<courseAction>>
 
 const getList = (payload: PayLoadType = {}): ThunkResult<void> => {
   let { flag = 'push', limit = 10, page = 1, type = 'all' } = payload
@@ -51,10 +48,18 @@ const getShopCart = (state: number): ThunkResult<void> => {
   }
 }
 
+const handleSelect = (mode: Tmode): courseAction => {
+  return {
+    type: HANDLE_SELECT,
+    mode
+  }
+}
+
 const course = {
   getBannerAction,
   getList,
-  getShopCart
+  getShopCart,
+  handleSelect
 }
 
 export default course

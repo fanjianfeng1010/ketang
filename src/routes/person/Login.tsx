@@ -10,6 +10,7 @@ import action from '../../store/action/index'
 
 interface PropFromDisptch {
   personSetLogin: (islogin: boolean) => void
+  getShopCart: (state: number) => void
 }
 type LoginProps = FormComponentProps & RouteComponentProps & PropFromDisptch
 
@@ -33,7 +34,9 @@ class Login extends React.Component<LoginProps> {
           password
         })
         if (result.code === 0) {
-          this.props.personSetLogin(true)
+          await this.props.personSetLogin(true)
+          // 登录成功后,需要重新获取已购买的课程信息(未登录下从服务器获取的支付课程信息是获取不到的,但是登录后我们需要把购买的信息同步到 redux 中,这样)
+          await this.props.getShopCart(1)
           this.props.history.push('/person/info')
           return
         }
@@ -45,34 +48,26 @@ class Login extends React.Component<LoginProps> {
     const { getFieldDecorator } = this.props.form
 
     return (
-      <div className='login-box'>
-        <Form onSubmit={this.handleSubmit} className='login-form'>
+      <div className="login-box">
+        <Form onSubmit={this.handleSubmit} className="login-form">
           <Form.Item>
             {getFieldDecorator('username', {
-              rules: [
-                { required: true, message: 'Please input your username!' }
-              ]
+              rules: [{ required: true, message: 'Please input your username!' }]
             })(
               <Input
-                prefix={
-                  <Icon type='user' style={{ color: 'rgba(0,0,0,.25)' }} />
-                }
-                placeholder='Username'
+                prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />}
+                placeholder="Username"
               />
             )}
           </Form.Item>
           <Form.Item>
             {getFieldDecorator('password', {
-              rules: [
-                { required: true, message: 'Please input your Password!' }
-              ]
+              rules: [{ required: true, message: 'Please input your Password!' }]
             })(
               <Input
-                prefix={
-                  <Icon type='lock' style={{ color: 'rgba(0,0,0,.25)' }} />
-                }
-                type='password'
-                placeholder='Password'
+                prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
+                type="password"
+                placeholder="Password"
               />
             )}
           </Form.Item>
@@ -81,13 +76,10 @@ class Login extends React.Component<LoginProps> {
               valuePropName: 'checked',
               initialValue: true
             })(<Checkbox>Remember me</Checkbox>)}
-            <Button
-              type='primary'
-              htmlType='submit'
-              className='login-form-button'>
+            <Button type="primary" htmlType="submit" className="login-form-button">
               Log in
             </Button>
-            Or <Link to='/person/register'>register now!</Link>
+            Or <Link to="/person/register">register now!</Link>
           </Form.Item>
         </Form>
       </div>
@@ -102,7 +94,8 @@ const mapState2Props = (state: PersonState) => {
 }
 
 const mapDispatch = {
-  personSetLogin: action.person.personSetLogin
+  personSetLogin: action.person.personSetLogin,
+  getShopCart: action.course.getShopCart
 }
 
 export default Form.create()(

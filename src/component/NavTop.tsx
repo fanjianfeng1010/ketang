@@ -41,7 +41,7 @@ class NavTop extends React.Component<NavProps, INavTopState> {
       <header className='header-nav-box'>
         <div className='home-box'>
           <div className='base-box'>
-            <h1 className='logo'>珠峰培训</h1>
+            <h1 className='logo'>一个标题</h1>
             <Icon
               className='icon'
               type='bars'

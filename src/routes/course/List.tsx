@@ -10,6 +10,7 @@ import {
   PayLoadType
 } from '../../store/type'
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom'
+import CourseItem from './CourseItem'
 
 interface IListProps {
   getBanner: () => void
@@ -56,13 +57,13 @@ class List extends Component<AllProps, IListState> {
     let { banner, list } = this.props
     /* TODO => 在用户点击进入详情页后,返回上级页面时,页面也回退到用户所处的滚动位置 */
     return (
-      <div className='course-list-box'>
+      <div className="course-list-box">
         {banner && banner.length !== 0 ? (
           <Carousel autoplay>
             {banner &&
-              banner.map(item => {
+              banner.map((item) => {
                 return (
-                  <div key='item.id'>
+                  <div key="item.id">
                     <img src={item.pic} alt={item.dec} />
                   </div>
                 )
@@ -71,46 +72,23 @@ class List extends Component<AllProps, IListState> {
         ) : (
           ''
         )}
-        <div className='course-list'>
+        <div className="course-list">
           <h2>
-            <Icon type='menu-fold' />
+            <Icon type="menu-fold" />
             {this.queryType()}
           </h2>
           {/* 先确保数据存在在 props 中,并且数据有长度才渲染数据,否则提示没有数据 */}
           {list && list.length !== 0 ? (
             <div>
-              <ul>
-                {list.map(listItem => {
-                  let { name, dec, pic, time, id } = listItem
-                  return (
-                    <li key={id}>
-                      <Link
-                        to={{
-                          pathname: '/course/info',
-                          search: `?courseID=${id}`
-                        }}>
-                        <h3>{name}</h3>
-                        <div className='content'>
-                          <div className='pic'>
-                            <img src={pic} alt={dec} />
-                          </div>
-                          <div className='desc'>
-                            <p>{dec}</p>
-                            <p>{time}</p>
-                          </div>
-                        </div>
-                      </Link>
-                    </li>
-                  )
-                })}
+              <ul className="item-wrapper">
+                {list.map((listItem) => (
+                  <CourseItem data={listItem} key={listItem.id} checkBox={false} />
+                ))}
               </ul>
               {this.props.courseData.total <= this.props.courseData.page ? (
                 ''
               ) : (
-                <Button
-                  type='primary'
-                  onClick={this.handleClick}
-                  loading={this.state.isLoading}>
+                <Button type="primary" onClick={this.handleClick} loading={this.state.isLoading}>
                   加载更多
                 </Button>
               )}
